@@ -8,20 +8,6 @@ export interface User {
     created_at: string;
 }
 
-export interface Sale {
-    id: string;
-    name: string;
-    description: string;
-    price: number;
-    quantity: number;
-    image_url?: string;
-    status: 'available' | 'reserved' | 'shipped' | 'delivered' | 'completed' | 'cancelled';
-    seller: User;
-    category: Category;
-    language: Language;
-    created_at: string;
-}
-
 export interface Category {
     id: string;
     name: string;
@@ -34,6 +20,41 @@ export interface Language {
     name: string;
     code: string;
     flag_url?: string;
+}
+
+export interface Sale {
+    id: string;
+    name: string;
+    description: string;
+    price: number | string;
+    quantity: number;
+    reserved_quantity?: number | null;
+    image_url?: string | null;
+    status: 'available' | 'reserved' | 'shipped' | 'delivered' | 'completed' | 'cancelled';
+    views?: number;
+    seller: Partial<User> & { id: string };
+    buyer_id?: string | null;
+    store_id?: string | null;
+    category: Partial<Category> & { id: string };
+    language: Partial<Language> & { id: string };
+    shipping_proof_url?: string | null;
+    delivery_proof_url?: string | null;
+    reserved_at?: string | null;
+    shipped_at?: string | null;
+    delivered_at?: string | null;
+    completed_at?: string | null;
+    cancelled_at?: string | null;
+    original_quantity?: number;
+    parent_sale_id?: string | null;
+    created_at: string;
+}
+
+export interface SalesResponse {
+    success?: boolean;
+    data: Sale[];
+    total: number;
+    page: number;
+    totalPages: number;
 }
 
 export interface Purchase {

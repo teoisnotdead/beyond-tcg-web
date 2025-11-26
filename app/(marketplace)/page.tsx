@@ -3,9 +3,13 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/hooks/use-auth';
+import { SalesGrid } from '@/components/marketplace/sales-grid';
+import { useSales } from '@/lib/hooks/use-sales';
 
 export default function HomePage() {
     const { user, isLoading } = useAuth();
+    const { data, isLoading: loadingSales, isError } = useSales({ page: 1, limit: 6 });
+    const sales = data?.data ?? [];
 
     return (
         <div className="min-h-screen">
@@ -107,6 +111,21 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
+
+            <div className="pb-16">
+                {loadingSales ? (
+                    <div className="container text-muted-foreground">Cargando ventas destacadas...</div>
+                ) : isError ? (
+                    <div className="container text-red-500">No pudimos cargar las ventas. Intenta nuevamente.</div>
+                ) : (
+                    <SalesGrid
+                        sales={sales}
+                        limit={6}
+                        title="Destacados del marketplace"
+                        description="Un vistazo rápido a las cartas que están en vitrina ahora mismo."
+                    />
+                )}
+            </div>
         </div>
     );
 }
