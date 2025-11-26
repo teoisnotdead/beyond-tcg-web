@@ -15,7 +15,8 @@ import {
     LogOut,
     MoreHorizontal,
     Menu,
-    Store
+    Store,
+    CreditCard
 } from 'lucide-react';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -58,6 +60,12 @@ const sidebarItems = [
             { title: 'Guardados', href: '/dashboard/saved', icon: Heart },
         ],
     },
+    {
+        title: 'Suscripción',
+        items: [
+            { title: 'Manejar suscripción', href: '/dashboard/subscription', icon: CreditCard },
+        ],
+    },
 ];
 
 function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
@@ -78,7 +86,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
                     <Link
                         href="/marketplace"
                         onClick={onLinkClick}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-muted hover:text-primary text-muted-foreground mb-2"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-muted hover:text-primary mb-2"
                     >
                         <Store className="h-4 w-4" />
                         Marketplace
@@ -97,10 +105,10 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
                                             href={item.href}
                                             onClick={onLinkClick}
                                             className={cn(
-                                                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-muted hover:text-primary",
+                                                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-muted",
                                                 pathname === item.href
                                                     ? "bg-muted text-primary"
-                                                    : "text-muted-foreground"
+                                                    : "text-primary"
                                             )}
                                         >
                                             <Icon className="h-4 w-4" />
@@ -148,6 +156,13 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                            <div className="px-3 py-2">
+                                <p className="text-xs text-muted-foreground tracking-wide">Suscripción</p>
+                                <p className="text-sm font-semibold text-card-foreground capitalize">
+                                    {user?.tier || 'Sin suscripción'}
+                                </p>
+                            </div>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem
                                 onClick={() => {
                                     logout();

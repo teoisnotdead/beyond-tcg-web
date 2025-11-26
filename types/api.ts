@@ -4,6 +4,7 @@ export interface User {
     name: string;
     avatar_url?: string;
     is_store: boolean;
+    tier?: string;
     created_at: string;
 }
 
