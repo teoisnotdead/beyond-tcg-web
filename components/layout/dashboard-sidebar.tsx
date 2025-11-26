@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
     LayoutDashboard,
@@ -14,9 +14,10 @@ import {
     Settings,
     LogOut,
     MoreHorizontal,
-    Menu
+    Menu,
+    Store
 } from 'lucide-react';
-import { useAuthStore } from '@/lib/store/auth-store';
+import { useAuth } from '@/lib/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -61,7 +62,8 @@ const sidebarItems = [
 
 function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
     const pathname = usePathname();
-    const { user, logout } = useAuthStore();
+    const router = useRouter();
+    const { user, logout } = useAuth();
 
     return (
         <div className="flex h-full flex-col">
@@ -73,9 +75,17 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
 
             <div className="flex-1 overflow-auto py-4">
                 <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
+                    <Link
+                        href="/marketplace"
+                        onClick={onLinkClick}
+                        className="flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-muted hover:text-primary text-muted-foreground mb-2"
+                    >
+                        <Store className="h-4 w-4" />
+                        Marketplace
+                    </Link>
                     {sidebarItems.map((section, index) => (
                         <div key={index} className="mb-6">
-                            <h3 className="mb-2 px-4 text-xs font-semibold text-muted-foreground tracking-wider uppercase">
+                            <h3 className="mb-2 px-4 text-xs font-semibold text-muted-foreground tracking-wider">
                                 {section.title}
                             </h3>
                             <div className="grid gap-1">
@@ -87,7 +97,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
                                             href={item.href}
                                             onClick={onLinkClick}
                                             className={cn(
-                                                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary",
+                                                "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-muted hover:text-primary",
                                                 pathname === item.href
                                                     ? "bg-muted text-primary"
                                                     : "text-muted-foreground"
@@ -138,7 +148,13 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={logout} className="text-red-600 cursor-pointer">
+                            <DropdownMenuItem
+                                onClick={() => {
+                                    logout();
+                                    router.replace('/login');
+                                }}
+                                className="text-red-600 cursor-pointer"
+                            >
                                 <LogOut className="mr-2 h-4 w-4" />
                                 Cerrar Sesión
                             </DropdownMenuItem>
@@ -150,30 +166,30 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
     );
 }
 
-export function DashboardSidebar() {
+export function DashboardSidebarMobile() {
     const [open, setOpen] = useState(false);
 
     return (
-        <>
-            {/* Mobile Menu */}
-            <Sheet open={open} onOpenChange={setOpen}>
-                <SheetTrigger asChild className="md:hidden">
-                    <Button variant="ghost" size="icon">
-                        <Menu className="h-5 w-5" />
-                    </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="p-0 w-64">
-                    <SheetHeader className="sr-only">
-                        <SheetTitle>Menú de navegación</SheetTitle>
-                    </SheetHeader>
-                    <SidebarContent onLinkClick={() => setOpen(false)} />
-                </SheetContent>
-            </Sheet>
+        <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0 w-64">
+                <SheetHeader className="sr-only">
+                    <SheetTitle>Menú de navegación</SheetTitle>
+                </SheetHeader>
+                <SidebarContent onLinkClick={() => setOpen(false)} />
+            </SheetContent>
+        </Sheet>
+    );
+}
 
-            {/* Desktop Sidebar */}
-            <div className="hidden md:flex h-screen flex-col border-r bg-card text-card-foreground">
-                <SidebarContent />
-            </div>
-        </>
+export function DashboardSidebar() {
+    return (
+        <div className="hidden md:flex h-screen flex-col border-r bg-card text-card-foreground">
+            <SidebarContent />
+        </div>
     );
 }

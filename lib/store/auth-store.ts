@@ -1,66 +1,139 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { User } from '@/types/api';
 import { apiClient } from '@/lib/api/client';
+import type { User } from '@/types/api';
+
+const AUTH_TOKEN_KEY = 'beyond-tcg-token';
+const AUTH_USER_KEY = 'beyond-tcg-user';
+const AUTH_SESSION_KEY = 'beyond-tcg-session';
 
 interface AuthState {
-    user: User | null;
-    token: string | null;
-    hasHydrated: boolean;
-    login: (email: string, password: string) => Promise<void>;
-    register: (name: string, email: string, password: string) => Promise<void>;
-    logout: () => void;
-    setToken: (token: string | null) => void;
-    setUser: (user: User | null) => void;
-    setHasHydrated: (state: boolean) => void;
+  user: User | null;
+  token: string | null;
+  isLoading: boolean;
+  initialized: boolean;
+  initialize: () => void;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
+  logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>()(
-    persist(
-        (set) => ({
-            user: null,
-            token: null,
-            hasHydrated: false,
-            login: async (email, password) => {
-                const { data } = await apiClient.post('/auth/login', { email, password });
-                set({ token: data.access_token, user: data.user });
-                document.cookie = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax`;
-                if (typeof window !== 'undefined') {
-                    localStorage.setItem('auth-token', data.access_token);
-                }
-            },
-            register: async (name, email, password) => {
-                const { data } = await apiClient.post('/auth/register', { name, email, password });
-                set({ token: data.access_token, user: data.user });
-                document.cookie = `token=${data.access_token}; path=/; max-age=86400; SameSite=Lax`;
-                if (typeof window !== 'undefined') {
-                    localStorage.setItem('auth-token', data.access_token);
-                }
-            },
-            logout: () => {
-                set({ token: null, user: null });
-                document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-                if (typeof window !== 'undefined') {
-                    localStorage.removeItem('auth-token');
-                    window.location.href = '/login';
-                }
-            },
-            setToken: (token) => set({ token }),
-            setUser: (user) => set({ user }),
-            setHasHydrated: (state) => set({ hasHydrated: state }),
-        }),
-        {
-            name: 'auth-storage',
-            storage: createJSONStorage(() => localStorage),
-            partialize: (state) => ({ token: state.token, user: state.user }),
-            onRehydrateStorage: () => (state) => {
-                state?.setHasHydrated(true);
-            },
-        }
-    )
-);
+function readStoredAuth(): { user: User | null; token: string | null } {
+  if (typeof window === 'undefined') return { user: null, token: null };
 
-// Initialize store hydration on client
-if (typeof window !== 'undefined') {
-    useAuthStore.persist.rehydrate();
+  const storedToken = window.localStorage.getItem(AUTH_TOKEN_KEY);
+  const storedUser = window.localStorage.getItem(AUTH_USER_KEY);
+
+  if (!storedToken || !storedUser) {
+    return { user: null, token: null };
+  }
+
+  try {
+    const parsedUser = JSON.parse(storedUser) as User;
+    return { user: parsedUser, token: storedToken };
+  } catch {
+    window.localStorage.removeItem(AUTH_TOKEN_KEY);
+    window.localStorage.removeItem(AUTH_USER_KEY);
+    window.sessionStorage.removeItem(AUTH_SESSION_KEY);
+    return { user: null, token: null };
+  }
 }
+
+function persistAuth(token: string, user: User) {
+  if (typeof window === 'undefined') return;
+
+  window.localStorage.setItem(AUTH_TOKEN_KEY, token);
+  window.localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+  window.sessionStorage.setItem(AUTH_SESSION_KEY, 'true');
+}
+
+function clearPersistedAuth() {
+  if (typeof window === 'undefined') return;
+
+  window.localStorage.removeItem(AUTH_TOKEN_KEY);
+  window.localStorage.removeItem(AUTH_USER_KEY);
+  window.sessionStorage.removeItem(AUTH_SESSION_KEY);
+}
+
+export const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  token: null,
+  isLoading: true,
+  initialized: false,
+
+  initialize: () => {
+    if (typeof window === 'undefined') return;
+
+    const { user, token } = readStoredAuth();
+    set({
+      user,
+      token,
+      isLoading: false,
+      initialized: true,
+    });
+  },
+
+  login: async (email: string, password: string) => {
+    set({ isLoading: true });
+    try {
+      const { data } = await apiClient.post('/auth/login', { email, password });
+
+      // El backend responde como { success: true, data: { access_token, user } }
+      const payload = (data as any)?.data ?? data;
+
+      const newToken: string = payload.access_token;
+      const newUser: User = payload.user;
+
+      persistAuth(newToken, newUser);
+
+      set({
+        user: newUser,
+        token: newToken,
+        isLoading: false,
+      });
+    } catch (error) {
+      set({ isLoading: false });
+      throw error;
+    }
+  },
+
+  register: async (name: string, email: string, password: string) => {
+    set({ isLoading: true });
+    try {
+      const { data } = await apiClient.post('/auth/register', { name, email, password });
+
+      // El backend responde como { success: true, data: { access_token, user } }
+      const payload = (data as any)?.data ?? data;
+
+      const newToken: string = payload.access_token;
+      const newUser: User = payload.user;
+
+      persistAuth(newToken, newUser);
+
+      set({
+        user: newUser,
+        token: newToken,
+        isLoading: false,
+      });
+    } catch (error) {
+      set({ isLoading: false });
+      throw error;
+    }
+  },
+
+  logout: () => {
+    clearPersistedAuth();
+    set({
+      user: null,
+      token: null,
+      isLoading: false,
+    });
+  },
+}));
+
+export const AUTH_KEYS = {
+  TOKEN: AUTH_TOKEN_KEY,
+  USER: AUTH_USER_KEY,
+  SESSION: AUTH_SESSION_KEY,
+} as const;
+
+

@@ -17,7 +17,8 @@ export const apiClient = axios.create({
 
 // Add token to all requests
 apiClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
+    // Usamos la nueva clave de auth persistida en localStorage
+    const token = typeof window !== 'undefined' ? localStorage.getItem('beyond-tcg-token') : null;
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
@@ -28,9 +29,9 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+        if (error.response?.status === 401 && typeof window !== 'undefined') {
+            localStorage.removeItem('beyond-tcg-token');
+            localStorage.removeItem('beyond-tcg-user');
             // Only redirect if we are in the browser
             if (typeof window !== 'undefined') {
                 window.location.href = '/login';

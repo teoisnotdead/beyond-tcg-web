@@ -1,7 +1,27 @@
-import { RegisterForm } from '@/components/auth/register-form';
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { RegisterForm } from '@/components/auth/register-form';
+import { useAuth } from '@/lib/hooks/use-auth';
 
 export default function RegisterPage() {
+    const router = useRouter();
+    const { user, isLoading } = useAuth();
+
+    // Si ya hay sesión, redirigir al dashboard
+    useEffect(() => {
+        if (!isLoading && user) {
+            router.replace('/dashboard');
+        }
+    }, [isLoading, user, router]);
+
+    // Si está cargando o ya hay usuario, no renderizamos el formulario
+    if (isLoading || user) {
+        return null;
+    }
+
     return (
         <div className="container flex h-screen w-screen flex-col items-center justify-center">
             <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">

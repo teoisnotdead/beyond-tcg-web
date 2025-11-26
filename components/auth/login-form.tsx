@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuthStore } from '@/lib/store/auth-store';
+import { useAuth } from '@/lib/hooks/use-auth';
 import { loginSchema, LoginValues } from '@/lib/schemas/auth';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 
 export function LoginForm() {
-    const login = useAuthStore((state) => state.login);
+    const { login } = useAuth();
     const router = useRouter();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -36,8 +36,7 @@ export function LoginForm() {
         setError(null);
         try {
             await login(values.email, values.password);
-            // Use window.location to force a full page reload for proper state hydration
-            window.location.href = '/dashboard';
+            router.push('/dashboard');
         } catch (err: any) {
             console.error(err);
             setError('Credenciales inválidas o error en el servidor');
