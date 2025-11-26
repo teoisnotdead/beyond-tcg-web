@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
+import { Chrome } from 'lucide-react';
 
 export function LoginForm() {
     const { login } = useAuth();
@@ -77,6 +78,20 @@ export function LoginForm() {
                 {error && <p className="text-sm text-red-500">{error}</p>}
                 <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? 'Ingresando...' : 'Ingresar'}
+                </Button>
+                <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full gap-2"
+                    disabled={loading}
+                    aria-label="Ingresar con Google"
+                    onClick={() => {
+                        // Se implementará cuando estén configuradas las credenciales de Google
+                        console.info('Login con Google pendiente de configuración');
+                    }}
+                >
+                    <Chrome className="h-5 w-5" />
+                    Continuar con Google
                 </Button>
             </form>
         </Form>

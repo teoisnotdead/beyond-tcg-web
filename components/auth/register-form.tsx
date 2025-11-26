@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
+import { Chrome } from 'lucide-react';
 
 export function RegisterForm() {
     const { register: registerUser } = useAuth();
@@ -105,6 +106,20 @@ export function RegisterForm() {
                 {error && <p className="text-sm text-red-500">{error}</p>}
                 <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? 'Registrando...' : 'Registrarse'}
+                </Button>
+                <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full gap-2"
+                    disabled={loading}
+                    aria-label="Registrarse con Google"
+                    onClick={() => {
+                        // Se implementará cuando estén configuradas las credenciales de Google
+                        console.info('Registro con Google pendiente de configuración');
+                    }}
+                >
+                    <Chrome className="h-5 w-5" />
+                    Continuar con Google
                 </Button>
             </form>
         </Form>

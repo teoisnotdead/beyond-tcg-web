@@ -31,6 +31,7 @@ import {
     Sheet,
     SheetContent,
     SheetHeader,
+    SheetDescription,
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
