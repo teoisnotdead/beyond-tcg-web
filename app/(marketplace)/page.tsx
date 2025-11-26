@@ -14,7 +14,7 @@ export default function HomePage() {
     return (
         <div className="min-h-screen">
             <section className="relative overflow-hidden">
-                <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-transparent to-sky-500/10 blur-3xl" />
+                <div className="absolute inset-0 -z-10 bg-linear-to-br from-primary/10 via-transparent to-sky-500/10 blur-3xl" />
                 <div className="container py-16 grid gap-10 lg:grid-cols-2 items-center">
                     <div className="space-y-6">
                         <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
@@ -123,6 +123,7 @@ export default function HomePage() {
                         limit={6}
                         title="Destacados del marketplace"
                         description="Un vistazo rápido a las cartas que están en vitrina ahora mismo."
+                        showPagination={false}
                     />
                 )}
             </div>

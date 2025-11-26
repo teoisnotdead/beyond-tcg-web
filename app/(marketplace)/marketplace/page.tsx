@@ -1,21 +1,17 @@
 'use client';
 
+import { useState } from "react";
 import { SalesGrid } from "@/components/marketplace/sales-grid";
 import { useSales } from "@/lib/hooks/use-sales";
 
 export default function MarketplacePage() {
-    const { data, isLoading, isError } = useSales({ page: 1, limit: 20 });
+    const [page, setPage] = useState(1);
+    const { data, isLoading, isError } = useSales({ page, limit: 6 });
     const sales = data?.data ?? [];
+    const totalPages = data?.totalPages ?? 1;
 
     return (
         <div className="container py-10 space-y-8">
-            <div>
-                <h1 className="text-4xl font-bold mb-3">Marketplace</h1>
-                <p className="text-lg text-muted-foreground">
-                    Explora nuestra colección de cartas.
-                </p>
-            </div>
-
             {isLoading ? (
                 <p className="text-muted-foreground">Cargando cartas...</p>
             ) : isError ? (
@@ -26,6 +22,10 @@ export default function MarketplacePage() {
                     title="Todas las cartas disponibles"
                     description="Pronto agregaremos filtros, búsqueda y paginación en vivo."
                     className="pb-16"
+                    showPagination
+                    currentPage={page}
+                    totalPages={totalPages}
+                    onPageChange={(nextPage) => setPage(nextPage)}
                 />
             )}
         </div>

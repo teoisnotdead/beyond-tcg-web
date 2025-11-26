@@ -37,12 +37,15 @@ export function useSales(params: UseSalesParams = {}) {
 
             const payload = (data as any)?.data ? data : { data: data as unknown as Sale[], total: 0, page, totalPages: 0 };
 
+            const computedTotal = payload.total ?? 0;
+            const computedTotalPages = payload.totalPages ?? (limit ? Math.max(1, Math.ceil(computedTotal / limit)) : 1);
+
             return {
                 success: (payload as any).success,
                 data: payload.data ?? [],
-                total: payload.total ?? 0,
+                total: computedTotal,
                 page: payload.page ?? page,
-                totalPages: payload.totalPages ?? 0,
+                totalPages: computedTotalPages,
             };
         },
         staleTime: 30_000,

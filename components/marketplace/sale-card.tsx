@@ -18,23 +18,22 @@ export function SaleCard({ sale }: SaleCardProps) {
 
     return (
         <article className="group relative overflow-hidden rounded-2xl border bg-card shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-            <div className="relative h-48 bg-muted">
+            <div className="relative aspect-16/10 overflow-hidden bg-muted">
                 {sale.image_url ? (
                     <Image
                         src={sale.image_url}
                         alt={sale.name}
                         fill
-                        className="object-cover"
+                        className="object-cover transition duration-500 group-hover:scale-105"
                         sizes="(min-width: 1024px) 320px, 100vw"
                     />
                 ) : (
                     <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-primary/10 via-background to-primary/5 text-muted-foreground text-sm">
-                        Sin imagen
+                        Imagen no encontrada
                     </div>
                 )}
-                <div className="absolute left-3 top-3 rounded-full bg-background/80 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary backdrop-blur">
-                    {sale.status}
-                </div>
+                <div className="absolute inset-0 bg-linear-to-b from-transparent via-background/10 to-background/60" />
+                <div className="absolute left-3 top-3 rounded-full bg-background/80 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary backdrop-blur">{sale.status}</div>
             </div>
             <div className="space-y-3 p-4">
                 <div className="flex items-start justify-between gap-2">
