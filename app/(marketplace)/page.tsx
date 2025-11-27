@@ -39,13 +39,6 @@ export default function HomePage() {
                                     Ver noticias
                                 </Button>
                             </Link>
-                            {!isLoading && !user && (
-                                <Link href="/login">
-                                    <Button size="lg" variant="ghost">
-                                        Acceder
-                                    </Button>
-                                </Link>
-                            )}
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
                             <div className="rounded-2xl border bg-card/80 p-4 shadow-sm">
