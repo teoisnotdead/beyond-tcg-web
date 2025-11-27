@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation';
 import { Chrome } from 'lucide-react';
 
 export function LoginForm() {
-    const { login } = useAuth();
+    const { login, loginWithGoogle } = useAuth();
     const router = useRouter();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -40,7 +40,24 @@ export function LoginForm() {
             router.push('/dashboard');
         } catch (err: any) {
             console.error(err);
-            setError('Credenciales inválidas o error en el servidor');
+            setError('Credenciales invalidas o error en el servidor');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function handleGoogleLogin() {
+        setLoading(true);
+        setError(null);
+        try {
+            await loginWithGoogle();
+        } catch (err: any) {
+            console.error(err);
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : 'No se pudo completar el inicio de sesion con Google';
+            setError(message);
         } finally {
             setLoading(false);
         }
@@ -85,13 +102,10 @@ export function LoginForm() {
                     className="w-full gap-2"
                     disabled={loading}
                     aria-label="Ingresar con Google"
-                    onClick={() => {
-                        // Se implementará cuando estén configuradas las credenciales de Google
-                        console.info('Login con Google pendiente de configuración');
-                    }}
+                    onClick={handleGoogleLogin}
                 >
                     <Chrome className="h-5 w-5" />
-                    Continuar con Google
+                    {loading ? 'Conectando con Google...' : 'Continuar con Google'}
                 </Button>
             </form>
         </Form>

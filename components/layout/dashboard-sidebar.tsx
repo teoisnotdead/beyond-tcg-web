@@ -169,7 +169,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
                                     logout();
                                     router.replace('/login');
                                 }}
-                                className="text-red-600 cursor-pointer"
+                                className="text-red-400 cursor-pointer"
                             >
                                 <LogOut className="mr-2 h-4 w-4" />
                                 Cerrar Sesión

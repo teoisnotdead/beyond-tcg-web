@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation';
 import { Chrome } from 'lucide-react';
 
 export function RegisterForm() {
-    const { register: registerUser } = useAuth();
+    const { register: registerUser, loginWithGoogle } = useAuth();
     const router = useRouter();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -43,6 +43,23 @@ export function RegisterForm() {
         } catch (err: any) {
             console.error(err);
             setError('Error al registrarse. Intenta nuevamente.');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function handleGoogleRegister() {
+        setLoading(true);
+        setError(null);
+        try {
+            await loginWithGoogle();
+        } catch (err: any) {
+            console.error(err);
+            const message =
+                err instanceof Error
+                    ? err.message
+                    : 'No se pudo completar el registro con Google';
+            setError(message);
         } finally {
             setLoading(false);
         }
@@ -113,13 +130,10 @@ export function RegisterForm() {
                     className="w-full gap-2"
                     disabled={loading}
                     aria-label="Registrarse con Google"
-                    onClick={() => {
-                        // Se implementará cuando estén configuradas las credenciales de Google
-                        console.info('Registro con Google pendiente de configuración');
-                    }}
+                    onClick={handleGoogleRegister}
                 >
                     <Chrome className="h-5 w-5" />
-                    Continuar con Google
+                    {loading ? 'Conectando con Google...' : 'Continuar con Google'}
                 </Button>
             </form>
         </Form>

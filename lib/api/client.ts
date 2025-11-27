@@ -15,12 +15,21 @@ export const apiClient = axios.create({
 
 
 
-// Add token to all requests
+// Add token to all requests (unless skipAuth flag is present)
 apiClient.interceptors.request.use((config) => {
-    // Usamos la nueva clave de auth persistida en localStorage
-    const token = typeof window !== 'undefined' ? localStorage.getItem('beyond-tcg-token') : null;
+    config.headers = config.headers ?? {};
+
+    if ((config as any).skipAuth) {
+        return config;
+    }
+
+    const hasAuthHeader = Boolean((config.headers as any).Authorization);
+    const token = !hasAuthHeader && typeof window !== 'undefined'
+        ? localStorage.getItem('beyond-tcg-token')
+        : null;
+
     if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+        (config.headers as any).Authorization = `Bearer ${token}`;
     }
     return config;
 });
