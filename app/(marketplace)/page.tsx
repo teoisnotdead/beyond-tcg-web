@@ -5,9 +5,13 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { SalesGrid } from '@/components/marketplace/sales-grid';
 import { useSales } from '@/lib/hooks/use-sales';
+import { NewsGrid } from '@/components/news/news-grid';
+import { newsArticles } from '@/lib/data/news';
+import type { NewsArticle } from '@/types/news';
+
+const featuredNews: NewsArticle[] = newsArticles.slice(0, 3);
 
 export default function HomePage() {
-    const { user, isLoading } = useAuth();
     const { data, isLoading: loadingSales, isError } = useSales({ page: 1, limit: 6 });
     const sales = data?.data ?? [];
 
@@ -84,6 +88,17 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
+
+            <NewsGrid
+                articles={featuredNews}
+                limit={3}
+                filterable
+                title="Noticias destacadas"
+                description="Un vistazo rápido a lanzamientos, eventos y entrevistas de la comunidad."
+                ctaHref="/news"
+                showPagination={false}
+                className="pb-8"
+            />
 
             <section className="container py-14">
                 <div className="grid gap-6 md:grid-cols-3">
